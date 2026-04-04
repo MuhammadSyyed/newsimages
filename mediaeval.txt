@@ -1,0 +1,17 @@
+Link: https://multimediaeval.github.io/editions/2026/tasks/newsimages/
+Github: https://github.com/Informfully/Challenges
+
+Email:
+
+heitz@ifi.uzh.ch
+Apr 2, 2026, 2:35 PM (2 days ago)
+to Lucien
+
+Dear NewsImages Participants,
+Thank you very much for completing your registration.
+You can find the training dataset in our file server here. And you can download the test and evaluation dataset from our file server here (password: ‘$uper_$ecret_2026’). We ask you to share these resources only among registered team members and to use it only for the purpose of the NewsImages challenge.
+Each run of your final submission should list 800 recommendations for the articles listed in the test CSV (we omitted article URL and image information). You can use the items from the evaluation CSV to assess your run workflows; you do not need to send us any recommendation for these articles.
+Please have a look at the README for more information regarding your submission and the FAQ in case there are any open questions. The event will be hosted using Slack. This is also the place where we will provide technical support. Please join our server using the invite code.
+
+Best,
+Lucien, on behalf of the NewsImages organizers
