@@ -1,2 +1,4 @@
 dataset/
+artifacts/
 venv/
+.DS_Store
