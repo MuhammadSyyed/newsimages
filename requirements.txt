@@ -70,7 +70,6 @@ tokenizers==0.22.2
 tornado==6.5.5
 tqdm==4.67.3
 traitlets==5.14.3
-transformers==5.5.3
 typer==0.24.1
 typing_extensions==4.15.0
 wcwidth==0.6.0
