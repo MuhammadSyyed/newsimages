@@ -193,6 +193,14 @@ if not annotator_id:
     st.warning("Enter annotator_id to continue.")
     st.stop()
 
+if annotator_id == "meadminhun":
+    st.download_button(
+        "Download current annotations",
+        data=json.dumps(data, indent=2),
+        file_name="annotations_backup.json",
+        mime="application/json",
+    )
+
 if st.session_state.get("_annotator_id") != annotator_id:
     st.session_state["_annotator_id"] = annotator_id
     st.session_state["_assigned_idx"] = None
