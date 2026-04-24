@@ -1,6 +1,7 @@
 import html
 import json
 from pathlib import Path
+from urllib.parse import urlparse
 
 import ftfy
 import streamlit as st
@@ -36,6 +37,16 @@ def resolve_image_path(raw):
         except OSError:
             continue
     return None
+
+
+def is_remote_image_url(raw):
+    if raw is None:
+        return False
+    s = str(raw).strip()
+    if not s:
+        return False
+    parsed = urlparse(s)
+    return parsed.scheme in ("http", "https") and bool(parsed.netloc)
 
 
 def normalize_candidate_labels(candidate):
@@ -232,15 +243,19 @@ with st.form(f"annotate_{annotator_id}_{qid}"):
                 gap="medium",
             )
             with col_img:
-                img_path = resolve_image_path(candidate.get("image_path", ""))
-                if img_path is not None:
-                    try:
-                        st.image(Image.open(img_path), width='stretch')
-                    except (OSError, ValueError):
-                        st.write("Image could not be opened")
+                image_ref = candidate.get("s3_bucket_path", "")
+                if is_remote_image_url(image_ref):
+                    st.image(str(image_ref).strip(), width="stretch")
                 else:
-                    st.write("Image not found")
-                    st.caption(str(candidate.get("image_path", "")))
+                    img_path = resolve_image_path(image_ref)
+                    if img_path is not None:
+                        try:
+                            st.image(Image.open(img_path), width='stretch')
+                        except (OSError, ValueError):
+                            st.write("Image could not be opened")
+                    else:
+                        st.write("Image not found")
+                        st.caption(str(candidate.get("s3_bucket_path", "")))
                 cap = fix_query_text(candidate.get("caption", "") or "")
                 if cap:
                     st.caption(cap)

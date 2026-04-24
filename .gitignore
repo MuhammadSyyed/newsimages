@@ -1,6 +1,6 @@
 artifacts/
+*.jpg
 *env/
 .DS_Store
 .env
-*.jpg
 *.pyc
