@@ -1,5 +1,6 @@
-dataset/
 artifacts/
 *env/
 .DS_Store
 .env
+*.jpg
+*.pyc
