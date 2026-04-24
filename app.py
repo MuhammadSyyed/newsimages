@@ -6,7 +6,7 @@ import ftfy
 import streamlit as st
 from PIL import Image
 
-DATA_PATH = (Path(__file__).resolve().parent / ".." /
+DATA_PATH = (Path(__file__).resolve().parent / "." /
              "dataset" / "eval_dataset.json").resolve()
 DATASET_DIR = DATA_PATH.parent
 PROJECT_ROOT = DATA_PATH.parent.parent
