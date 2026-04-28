@@ -1,8 +1,12 @@
+
+from utils import utils
 import boto3
 import os
-import json
+import sys
 from pathlib import Path
 from dotenv import load_dotenv
+root = os.path.abspath(os.path.join(os.getcwd(), '.'))
+sys.path.append(root)
 load_dotenv()
 
 AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY_ID")
@@ -17,18 +21,6 @@ s3 = boto3.client(
     region_name=REGION
 )
 
-def load_json(path):
-    path = Path(path)
-    if not path.exists():
-        raise FileNotFoundError(f"{path} not found")
-    with path.open("r", encoding="utf-8") as f:
-        return json.load(f)
-    
-def save_json(data, path):
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
 
 def upload_image(file_path):
     filename = os.path.basename(file_path)
@@ -73,8 +65,9 @@ def resolve_image_path(raw_path, json_path):
 
 
 if __name__ == "__main__":
-    json_path = (Path(__file__).resolve().parent.parent / "dataset" / "eval_dataset.json").resolve()
-    eval_data = load_json(json_path)
+    json_path = (Path(__file__).resolve().parent.parent /
+                 "dataset" / "eval_dataset.json").resolve()
+    eval_data = utils.load_json(json_path)
 
     updated_count = 0
     missing_count = 0
@@ -87,7 +80,7 @@ if __name__ == "__main__":
         entry["s3_bucket_path"] = url
         updated_count += 1
 
-    save_json(eval_data, json_path)
+    utils.save_json(eval_data, json_path)
     print(f"Updated {updated_count} records with s3_bucket_path.")
     if missing_count:
         print(f"Skipped {missing_count} records (image file not found).")
