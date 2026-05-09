@@ -122,7 +122,7 @@ def encode_texts(texts, model, device, batch_size=32):
         for i in range(0, len(texts), batch_size):
             batch = texts[i:i+batch_size]
 
-            tokens = clip.tokenize(batch).to(device)
+            tokens = clip.tokenize(batch, truncate=True).to(device)
 
             emb = model.encode_text(tokens)
             emb = emb / emb.norm(dim=-1, keepdim=True)
@@ -132,7 +132,7 @@ def encode_texts(texts, model, device, batch_size=32):
     return np.vstack(all_embeddings).astype("float32")
 
 
-def retrieve_candidates(query, model, device, image_embeddings, records, top_k=10):
+def retrieve_candidates(query, model, device, image_embeddings, records, caption_embeddings=None, top_k=10):
 
     query_emb = encode_texts([query], model, device)[0]
 
@@ -152,7 +152,7 @@ def retrieve_candidates(query, model, device, image_embeddings, records, top_k=1
             "title": records[idx]["title"],
             "clip_score": float(scores[idx]),
             "image_emb": image_embeddings[idx],
-            "source": "retrieval"
+            "caption_emb": caption_embeddings[idx] if caption_embeddings else []
         })
 
     return candidates
@@ -484,10 +484,11 @@ def evaluate(model, queries, gt, k_list=[1, 5, 10]):
             hit = int(any(g in top_k for g in gt_ids))
             results[k].append(hit)
 
-    return {k: np.mean(results[k]) for k in k_list}
+    return {f'Recall@{k}': round(float(np.mean(results[k])), 3) for k in k_list}
 
 
 def compute_mrr(model, data, max_k=10):
+
     reciprocal_ranks = []
 
     for query, gt_id in data:
@@ -501,4 +502,4 @@ def compute_mrr(model, data, max_k=10):
 
         reciprocal_ranks.append(rr)
 
-    return np.mean(reciprocal_ranks)
+    return round(float(np.mean(reciprocal_ranks)), 3)

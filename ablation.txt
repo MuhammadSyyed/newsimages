@@ -1,0 +1,7 @@
+Baseline
+Baseline + Reranker
+Baseline + Captions Fusion
+Baseline + Captions Fusion + Reranker
+Baseline + LLM-QE
+Baseline + LLM-QE + Reranker
+Hybrid Model

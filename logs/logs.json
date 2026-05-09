@@ -1,0 +1,142 @@
+{
+    "experiments": [
+        {
+            "id": "exp_20260508_165104",
+            "name": "CLIP Retrieval",
+            "execution_time_mins": 7.94,
+            "model": "ViT-L/14",
+            "dataset": "Evaluation",
+            "config": {},
+            "hyperparameters": {},
+            "metrics": {
+                "Recall@1": 0.239,
+                "Recall@5": 0.462,
+                "Recall@10": 0.564,
+                "MRR": 0.334
+            }
+        },
+        {
+            "id": "exp_20260508_175126",
+            "name": "CLIP Retrieval | CLIP Reranker",
+            "execution_time_mins": 25.0,
+            "model": "ViT-L/14 CLIP and ViT-L/14@336px Reranker",
+            "dataset": "Evaluation",
+            "config": {
+                "reranking": true
+            },
+            "hyperparameters": {
+                "top_k_reranking": 100
+            },
+            "metrics": {
+                "Recall@1": 0.244,
+                "Recall@5": 0.469,
+                "Recall@10": 0.573,
+                "MRR": 0.34
+            }
+        },
+        {
+            "id": "exp_20260508_183322",
+            "name": "CLIP Retrieval | LLM-QE",
+            "execution_time_mins": 15.58,
+            "model": "ViT-L/14CLIP Phi3 LLM-QE",
+            "dataset": "Evaluation",
+            "config": {
+                "query_expansion": true
+            },
+            "hyperparameters": {
+                "beta": 0.2
+            },
+            "metrics": {
+                "Recall@1": 0.241,
+                "Recall@5": 0.465,
+                "Recall@10": 0.57,
+                "MRR": 0.337
+            }
+        },
+        {
+            "id": "exp_20260508_194015",
+            "name": "CLIP Retrieval | LLM-QE | CLIP Reranker",
+            "execution_time_mins": 20.66,
+            "model": "ViT-L/14 Phi3 LLM-QE and CLIP Retriever",
+            "dataset": "Evaluation",
+            "config": {
+                "query_expansion": true
+            },
+            "hyperparameters": {
+                "beta": 0.2
+            },
+            "metrics": {
+                "Recall@1": 0.244,
+                "Recall@5": 0.469,
+                "Recall@10": 0.573,
+                "MRR": 0.34
+            }
+        },
+        {
+            "id": "exp_20260508_224353",
+            "name": "CLIP Retrieval | BLIP2 Captions Fusion",
+            "execution_time_mins": 8.19,
+            "model": "ViT-L/14 BLIP2 Captions Fusion",
+            "dataset": "Evaluation",
+            "config": {
+                "fusion": true
+            },
+            "hyperparameters": {
+                "beta": 0.2
+            },
+            "metrics": {
+                "Recall@1": 0.176,
+                "Recall@5": 0.353,
+                "Recall@10": 0.442,
+                "MRR": 0.252
+            }
+        },
+        {
+            "id": "exp_20260508_230706",
+            "name": "CLIP Retrieval | BLIP2 Captions Fusion | CLIP Reranking",
+            "execution_time_mins": 15.41,
+            "model": "ViT-L/14 Captions Fusion Reranking",
+            "dataset": "Evaluation",
+            "config": {
+                "fusion": true,
+                "reranking": true
+            },
+            "hyperparameters": {
+                "beta": 0.2,
+                "sim_threshold": 0.2,
+                "top_k": 100
+            },
+            "metrics": {
+                "Recall@1": 0.241,
+                "Recall@5": 0.455,
+                "Recall@10": 0.549,
+                "MRR": 0.332
+            }
+        },
+        {
+            "id": "exp_20260509_010419",
+            "name": "CLIP Retrieval | LLM-QE | BLIP2 Captions Fusion | CLIP Reranking",
+            "execution_time_mins": 21.04,
+            "model": "LLM-QE + Captions Fusion + CLIP Reranker",
+            "dataset": "Evaluation",
+            "config": {
+                "query_expansion": true,
+                "fusion": true,
+                "reranking": true
+            },
+            "hyperparameters": {
+                "fusion_beta": 0.2,
+                "qe_beta": 0.25,
+                "cap_sim_threshold": 0.2,
+                "qe_sim_threshold": 0.15,
+                "top_k": 100
+            },
+            "metrics": {
+                "Recall@1": 0.24,
+                "Recall@5": 0.452,
+                "Recall@10": 0.544,
+                "MRR": 0.33
+            }
+        }
+    ]
+}

@@ -1,0 +1,124 @@
+NewsImages 2026 at MediaEval: A Modular Retrieval Pipeline with Adaptive Query Expansion, Caption Fusion, and CLIP Re-ranking
+
+Imran Abbas
+Independent Research / DLP Project
+
+Abstract
+This paper presents a modular retrieval pipeline for the NewsImages 2026 challenge at MediaEval, where the task is to recommend fitting images for news article titles. Our system starts from a strong CLIP baseline and incrementally integrates three components: (i) LLM-based query expansion (LLM-QE), (ii) caption-aware embedding fusion using BLIP2 captions, and (iii) a second-stage CLIP re-ranker. We evaluate all variants on the official evaluation split using Recall@1/5/10 and MRR from our internal benchmark script. Results show that CLIP re-ranking provides the most consistent gains over baseline (Recall@10: 0.564 -> 0.573, MRR: 0.334 -> 0.340), while query expansion adds small but stable improvements in retrieval recall. Caption fusion alone underperforms due to caption noise/mismatch, but remains useful as an auxiliary signal in a hybrid setting. The main contribution is an adaptive, fully reproducible retrieval pipeline that combines semantic query rewriting and multi-view representation scoring with lightweight heuristics, while keeping competitive accuracy and practical runtime.
+
+Index Terms: News image recommendation, MediaEval, CLIP retrieval, query expansion, multimodal fusion, re-ranking
+
+1. Introduction
+Selecting an appropriate image for a news article is a challenging multimodal retrieval problem because article titles are short, ambiguous, and often context-dependent. The NewsImages task at MediaEval 2026 requires participants to recommend fitting images for news content under realistic constraints, emphasizing semantic relevance rather than exact lexical overlap.
+
+In this work, we focus on a retrieval-centric approach and study how far a carefully engineered CLIP pipeline can be pushed without supervised fine-tuning. We begin with a zero-shot CLIP retrieval baseline and add three orthogonal enhancements: (1) LLM-based query expansion to enrich sparse article titles, (2) image-caption fusion to inject additional textual grounding through BLIP2-generated captions, and (3) candidate re-ranking with a higher-resolution CLIP model for improved top-k ordering.
+
+Our goal is not only to maximize ranking quality but also to provide an interpretable and modular workflow for MediaEval submissions. Each component can be enabled/disabled independently, making the system practical for ablation, reproducibility, and future extension.
+
+2. Related Work
+The NewsImages benchmark has evolved from comparing generation and retrieval approaches to supporting hybrid systems that combine both paradigms [1,2]. Prior studies also highlight the importance of perceived text-image similarity in news recommendation settings [3].
+
+For representation learning, CLIP-style vision-language models remain a strong baseline for zero-shot retrieval due to aligned text-image embedding spaces. Retrieval quality is often improved with post-retrieval re-ranking and query reformulation. Query expansion with large language models has recently become attractive for sparse text retrieval, especially when queries are short headlines. Caption-aware retrieval is similarly motivated by reducing modality gaps: captions can provide additional semantic descriptors beyond raw visual embeddings.
+
+Our method combines these lines of work in a single pipeline and evaluates their interactions through controlled ablations.
+
+3. Task and Data
+We follow the NewsImages 2026 setup, using the official evaluation subset with article titles and associated ground-truth images from the MediaEval release. The broader challenge includes around 8,500 training articles and approximately 800 test/evaluation items (English news from MIND and historical archives), but our reported offline metrics are computed on the evaluation split where image IDs are available for benchmarking [1].
+
+For each article title, the system retrieves ranked image candidates from the evaluation image pool. We report Recall@1, Recall@5, Recall@10, and Mean Reciprocal Rank (MRR), which reflect both hit quality and rank sensitivity.
+
+4. Method
+Our implementation is organized as independent scripts that share a common utility and model layer. This section summarizes the retrieval architecture.
+
+4.1 Baseline: CLIP Retrieval
+The baseline encodes article titles and candidate images with CLIP ViT-L/14. Image embeddings are cached to disk for efficiency, and all embeddings are L2-normalized. Ranking is computed by cosine similarity in embedding space.
+
+4.2 LLM-Based Query Expansion (LLM-QE)
+We use a local Phi-3 model via Ollama to rewrite article titles into slightly expanded queries under strict constraints: no new facts, no fabricated events, and short output. The expansion is cached in JSON to ensure deterministic reuse across runs.
+
+Given original query embedding q and expanded query embedding q_exp, we compute their similarity and apply adaptive interpolation only when semantic alignment is sufficiently high. This prevents harmful drift from over-expansion.
+
+4.3 Caption Fusion
+To enrich image-side semantics, we use BLIP2 captions (precomputed in an auxiliary CSV) and encode them in the same CLIP text space. For each image, we fuse image and caption embeddings only if their mutual similarity exceeds a threshold; otherwise, we keep the original image embedding. This conditional fusion avoids forcing noisy captions into the representation.
+
+4.4 CLIP Re-ranking
+A two-stage ranking strategy is used: first-stage retrieval with ViT-L/14 retrieves top-k candidates (k=100), then a second CLIP model (ViT-L/14@336px) re-scores this candidate set against the original query for better ordering at the top ranks.
+
+4.5 Hybrid Pipeline
+Our final hybrid variant combines the above components:
+- adaptive query expansion on the query side,
+- conditional image-caption fusion on the index side,
+- second-stage CLIP re-ranking on candidates.
+
+The design is intentionally modular and can be tuned through a small set of transparent hyperparameters (fusion beta, QE beta, similarity thresholds, top-k re-ranking depth).
+
+5. Experimental Setup
+Hardware acceleration is selected automatically (CUDA, MPS, or CPU). Batch encoding is performed in fixed-size chunks and cached in the artifacts directory to reduce repeated compute. All runs use the same evaluation split and common metric code for fair comparison.
+
+Compared systems:
+1) CLIP Retrieval (baseline)
+2) CLIP + Re-ranker
+3) CLIP + LLM-QE
+4) CLIP + LLM-QE + Re-ranker
+5) CLIP + Caption Fusion
+6) CLIP + Caption Fusion + Re-ranker
+7) Hybrid (LLM-QE + Caption Fusion + Re-ranker)
+
+6. Results and Discussion
+Table 1 summarizes the logged results.
+
+Table 1. Offline evaluation on NewsImages evaluation split
+- CLIP Retrieval: R@1 0.239, R@5 0.462, R@10 0.564, MRR 0.334
+- CLIP + Re-ranker: R@1 0.244, R@5 0.469, R@10 0.573, MRR 0.340
+- CLIP + LLM-QE: R@1 0.241, R@5 0.465, R@10 0.570, MRR 0.337
+- CLIP + LLM-QE + Re-ranker: R@1 0.244, R@5 0.469, R@10 0.573, MRR 0.340
+- CLIP + Caption Fusion: R@1 0.176, R@5 0.353, R@10 0.442, MRR 0.252
+- CLIP + Caption Fusion + Re-ranker: R@1 0.241, R@5 0.455, R@10 0.549, MRR 0.332
+- Hybrid (QE + Fusion + Re-ranker): R@1 0.240, R@5 0.452, R@10 0.544, MRR 0.330
+
+Key observations:
+First, CLIP re-ranking is the strongest single improvement. It consistently improves all metrics over the plain baseline, indicating that better top-k ordering is more impactful than large architectural changes in this setting.
+
+Second, LLM-QE yields modest gains over baseline and appears complementary to re-ranking, but its contribution is smaller than re-ranking alone. This is expected because many article titles are already informative enough for CLIP, limiting expansion headroom.
+
+Third, caption fusion alone performs substantially worse than baseline. This suggests that caption quality/domain mismatch can introduce noise in news retrieval, particularly when captions over-describe visual details not aligned with headline semantics.
+
+Fourth, adding re-ranking after caption fusion recovers most of the lost performance, showing that multi-stage ranking can compensate for noisier first-stage representations.
+
+Finally, the full hybrid model does not surpass the best re-ranking variants in our current configuration. This indicates non-trivial interaction effects between QE and fusion; stronger gains likely require better calibration of thresholds and per-query adaptive weighting.
+
+7. Novelty and Contribution
+The novelty of this work is not a new pretrained backbone, but a practical algorithmic integration tailored to NewsImages:
+
+1) Adaptive dual-side conditioning:
+- Query-side conditioning through similarity-gated LLM expansion.
+- Image-side conditioning through similarity-gated caption fusion.
+
+2) Modular three-stage retrieval design:
+- initial semantic retrieval,
+- optional semantic enrichment,
+- high-resolution reranking for final ordering.
+
+3) Reproducible engineering for challenge workflows:
+- cached embeddings and cached expansions,
+- script-level ablation support,
+- consistent metric logging across all variants.
+
+This combination provides a transparent and extensible framework for short-paper challenge submissions, where reproducibility and comparative analysis are essential.
+
+8. Limitations and Future Work
+Our evaluation is offline and based on retrieval metrics against known evaluation images; final challenge outcomes depend on human judgments in the online event. Also, caption quality is inherited from upstream captioning and can propagate noise. Future work will include:
+- confidence-calibrated QE weights per query type,
+- improved caption filtering/denoising,
+- diversification-aware ranking to avoid visually redundant outputs,
+- optional retrieval-generation hybrids for difficult or low-confidence articles.
+
+9. Conclusion
+We presented a modular retrieval pipeline for NewsImages 2026 that combines CLIP retrieval, LLM-assisted query expansion, caption-aware fusion, and CLIP re-ranking. Among all tested components, re-ranking provides the most reliable gains, while query expansion offers smaller complementary improvements. Caption fusion is sensitive to caption quality and requires careful gating. Overall, the study shows that lightweight adaptive controls and strong two-stage ranking can deliver competitive performance for news image recommendation without expensive fine-tuning.
+
+References
+[1] L. Heitz et al., "NewsImages in MediaEval 2026 - Automated Image Recommendations with Retrieval and Generation Techniques for News Articles Thumbnails," Working Notes Proceedings of the MediaEval 2026 Workshop, 2026.
+[2] L. Heitz et al., "NewsImages in MediaEval 2025 - Comparing Image Retrieval and Generation for News Articles," Working Notes Proceedings of the MediaEval 2025 Workshop, 2025.
+[3] L. Heitz, L. Rossetto, and A. Bernstein, "An Empirical Exploration of Perceived Similarity between News Article Texts and Images," Working Notes Proceedings of the MediaEval 2023 Workshop, 2024.
+[4] A. Radford et al., "Learning Transferable Visual Models From Natural Language Supervision," ICML, 2021.
+[5] J. Li et al., "BLIP-2: Bootstrapping Language-Image Pre-training with Frozen Image Encoders and Large Language Models," 2023.
