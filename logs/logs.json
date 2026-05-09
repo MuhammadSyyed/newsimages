@@ -13,7 +13,11 @@
                 "Recall@5": 0.462,
                 "Recall@10": 0.564,
                 "MRR": 0.334
-            }
+            },
+            "paper_experiment_name": "CLIP Retrieval",
+            "plot_label": "CLIP Retrieval",
+            "ablation_group": "NewsImages 2026",
+            "plot_order": 1
         },
         {
             "id": "exp_20260508_175126",
@@ -32,7 +36,11 @@
                 "Recall@5": 0.469,
                 "Recall@10": 0.573,
                 "MRR": 0.34
-            }
+            },
+            "paper_experiment_name": "CLIP + Re-ranker",
+            "plot_label": "CLIP + Re-ranker",
+            "ablation_group": "NewsImages 2026",
+            "plot_order": 2
         },
         {
             "id": "exp_20260508_183322",
@@ -51,7 +59,11 @@
                 "Recall@5": 0.465,
                 "Recall@10": 0.57,
                 "MRR": 0.337
-            }
+            },
+            "paper_experiment_name": "CLIP + LLM-QE",
+            "plot_label": "CLIP + LLM-QE",
+            "ablation_group": "NewsImages 2026",
+            "plot_order": 3
         },
         {
             "id": "exp_20260508_194015",
@@ -70,7 +82,11 @@
                 "Recall@5": 0.469,
                 "Recall@10": 0.573,
                 "MRR": 0.34
-            }
+            },
+            "paper_experiment_name": "CLIP + LLM-QE + Re-ranker",
+            "plot_label": "CLIP + LLM-QE + Re-ranker",
+            "ablation_group": "NewsImages 2026",
+            "plot_order": 4
         },
         {
             "id": "exp_20260508_224353",
@@ -89,7 +105,11 @@
                 "Recall@5": 0.353,
                 "Recall@10": 0.442,
                 "MRR": 0.252
-            }
+            },
+            "paper_experiment_name": "CLIP + Caption Fusion",
+            "plot_label": "CLIP + Caption Fusion",
+            "ablation_group": "NewsImages 2026",
+            "plot_order": 5
         },
         {
             "id": "exp_20260508_230706",
@@ -111,7 +131,11 @@
                 "Recall@5": 0.455,
                 "Recall@10": 0.549,
                 "MRR": 0.332
-            }
+            },
+            "paper_experiment_name": "CLIP + Caption Fusion + Re-ranker",
+            "plot_label": "CLIP + Caption Fusion + Re-ranker",
+            "ablation_group": "NewsImages 2026",
+            "plot_order": 6
         },
         {
             "id": "exp_20260509_010419",
@@ -136,7 +160,11 @@
                 "Recall@5": 0.452,
                 "Recall@10": 0.544,
                 "MRR": 0.33
-            }
+            },
+            "paper_experiment_name": "Hybrid (LLM-QE + Caption Fusion + Re-ranker)",
+            "plot_label": "Hybrid (LLM-QE + Caption Fusion + Re-ranker)",
+            "ablation_group": "NewsImages 2026",
+            "plot_order": 7
         }
     ]
 }
