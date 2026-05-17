@@ -157,6 +157,29 @@ def retrieve_candidates(query, model, device, image_embeddings, records, caption
 
     return candidates
 
+def retrieve_candidate(query, model, device, image_embeddings, image_paths, top_k=1):
+
+    query_emb = encode_texts([query], model, device)[0]
+
+    query_emb = query_emb / np.linalg.norm(query_emb)
+
+    scores = image_embeddings @ query_emb
+
+    indices = np.argsort(-scores)[:top_k]
+
+    candidates = []
+    for idx in indices:
+        idx = int(idx)
+
+        candidates.append({
+            "idx": idx,
+            "image_path": image_paths[idx],
+            "clip_score": float(scores[idx]),
+            "image_emb": image_embeddings[idx]
+        })
+
+    return candidates
+
 
 def precision_at_k(candidates, relevant_set, k=10):
     top_k = candidates[:k]
