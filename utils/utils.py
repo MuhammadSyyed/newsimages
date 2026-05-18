@@ -526,3 +526,41 @@ def compute_mrr(model, data, max_k=10):
         reciprocal_ranks.append(rr)
 
     return round(float(np.mean(reciprocal_ranks)), 3)
+
+
+def resize_with_transparent_padding(
+    img: Image.Image,
+    target_w: int = 460,
+    target_h: int = 260
+):
+
+    # Convert to RGBA for transparency support
+    img = img.convert("RGBA")
+
+    original_w, original_h = img.size
+
+    # Preserve aspect ratio
+    ratio = min(target_w / original_w, target_h / original_h)
+
+    new_w = round(original_w * ratio)
+    new_h = round(original_h * ratio)
+
+    resized_img = img.resize(
+        (new_w, new_h),
+        Image.Resampling.LANCZOS
+    )
+
+    # Fully transparent canvas
+    canvas = Image.new(
+        "RGBA",
+        (target_w, target_h),
+        (0, 0, 0, 0)  # transparent
+    )
+
+    # Center placement
+    paste_x = (target_w - new_w) // 2
+    paste_y = (target_h - new_h) // 2
+
+    canvas.paste(resized_img, (paste_x, paste_y))
+
+    return canvas
