@@ -157,6 +157,7 @@ def retrieve_candidates(query, model, device, image_embeddings, records, caption
 
     return candidates
 
+
 def retrieve_candidate(query, model, device, image_embeddings, image_paths, top_k=1):
 
     query_emb = encode_texts([query], model, device)[0]
