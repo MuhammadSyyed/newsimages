@@ -495,6 +495,87 @@ Rewritten query:
 
     return result
 
+def generate_expansion_by_openai(generator, title):
+    prompt = f"""
+You are a query expansion system for vision-language image retrieval.
+
+Your task is to conservatively expand a query using ONLY visually grounded and directly implied concepts.
+
+GOAL:
+Improve image retrieval recall while preserving the original query intent exactly.
+
+STRICT RULES:
+- The rewritten query must remain suitable for dense image retrieval embeddings.
+- Preserve the original meaning exactly
+- Keep all original named entities unchanged
+- Do NOT introduce new events, facts, causes, or assumptions
+- Do NOT generate stories, explanations, or inferred context
+- Do NOT invent specific objects, equipment, people, poses, emotions, lighting, weather, or actions unless explicitly implied
+- Avoid cinematic or descriptive language
+- Avoid image-caption style outputs
+- Prefer generic scene descriptors over detailed scene generation
+- Add only short visually relevant terms such as:
+  - environment
+  - scene type
+  - visible setting
+  - generic activity
+  - appearance synonyms
+  - broad contextual nouns
+- The output must remain suitable as a retrieval query
+- Keep output concise
+- Output only the rewritten query
+- Do not use quotes
+- Maximum length: 25 words
+
+GOOD EXAMPLES:
+
+Query:
+Former President Jimmy Carter hospitalized
+
+Good Output:
+Former President Jimmy Carter hospitalized, hospital setting, medical care, healthcare environment
+
+Bad Output:
+elderly man in hospital bed with IV, doctors, nurses, oxygen tank, worried family members
+
+---
+
+Query:
+Police officers during street protest
+
+Good Output:
+Police officers during street protest, crowd, urban street scene, public demonstration
+
+Bad Output:
+angry protesters throwing objects at police under smoky night conditions
+
+---
+
+Query:
+Lion resting in grass
+
+Good Output:
+Lion resting in grass, wildlife, savanna, outdoor nature scene
+
+Bad Output:
+hungry lion preparing to attack prey at sunset
+
+---
+
+Original query:
+{title}
+
+Rewritten query:
+"""
+
+    result = generator(
+        prompt,
+        max_new_tokens=100,
+        temperature=0.2
+    )
+
+    return result
+
 
 def evaluate(model, queries, gt, k_list=[1, 5, 10]):
     results = {k: [] for k in k_list}

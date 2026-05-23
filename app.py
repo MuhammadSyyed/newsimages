@@ -79,6 +79,20 @@ if not model_names:
 labels = [format_article_label(row) for _, row in articles.iterrows()]
 id_by_label = dict(zip(labels, articles["article_id"], strict=True))
 
+
+def select_article(article_id: int) -> None:
+    st.session_state.selected_article_id = article_id
+
+
+def sync_article_from_label() -> None:
+    st.session_state.selected_article_id = int(
+        id_by_label[st.session_state.selected_article_label]
+    )
+
+
+if "selected_article_id" not in st.session_state:
+    st.session_state.selected_article_id = int(articles.iloc[0]["article_id"])
+
 with st.sidebar:
     st.header("Articles")
     search = st.text_input("Filter by title or ID", placeholder="e.g. 8501 or Apollo")
@@ -94,10 +108,37 @@ with st.sidebar:
         st.info("No articles match your filter.")
         st.stop()
 
-    selected_label = st.selectbox(
+    filtered_ids = [int(id_by_label[label]) for label in filtered_labels]
+    if st.session_state.selected_article_id not in filtered_ids:
+        st.session_state.selected_article_id = filtered_ids[0]
+
+    current_index = filtered_ids.index(st.session_state.selected_article_id)
+    nav_cols = st.columns(2)
+    with nav_cols[0]:
+        st.button(
+            "<",
+            disabled=current_index == 0,
+            width="stretch",
+            on_click=select_article,
+            args=(filtered_ids[max(current_index - 1, 0)],),
+        )
+    with nav_cols[1]:
+        st.button(
+            ">",
+            disabled=current_index == len(filtered_ids) - 1,
+            width="stretch",
+            on_click=select_article,
+            args=(filtered_ids[min(current_index + 1, len(filtered_ids) - 1)],),
+        )
+
+    selected_label_for_id = filtered_labels[current_index]
+    if st.session_state.get("selected_article_label") != selected_label_for_id:
+        st.session_state.selected_article_label = selected_label_for_id
+    st.selectbox(
         "Select article",
         filtered_labels,
-        index=0,
+        key="selected_article_label",
+        on_change=sync_article_from_label,
     )
     st.divider()
     st.subheader("Article list")
@@ -116,7 +157,7 @@ with st.sidebar:
         hide_index=True,
     )
 
-article_id = int(id_by_label[selected_label])
+article_id = int(st.session_state.selected_article_id)
 row = articles.loc[articles["article_id"] == article_id].iloc[0]
 
 st.subheader(f"Article {article_id}")

@@ -1,11 +1,60 @@
 import numpy as np
 from utils import utils
 import ollama
+from openai import OpenAI
 import torch
 import os
 import sys
 root = os.path.abspath(os.path.join(os.getcwd(), '..'))
 sys.path.append(root)
+
+from openai import OpenAI
+
+
+class OpenAIPipeline:
+
+    def __init__(self, model="gpt-5-mini"):
+
+        self.client = OpenAI()
+
+        self.model = model
+
+    def __call__(
+
+        self,
+
+        prompt,
+
+        max_new_tokens=120,
+
+        temperature=0.2,
+
+        reasoning_effort="minimal"
+
+    ):
+
+        response = self.client.chat.completions.create(
+
+            model=self.model,
+
+            messages=[
+
+                {
+
+                    "role": "user",
+
+                    "content": prompt
+
+                }
+
+            ],
+
+            max_completion_tokens=max_new_tokens,
+            reasoning_effort=reasoning_effort
+
+        )
+
+        return response.choices[0].message.content.strip()
 
 class OllamaPipeline:
     def __init__(self, model="phi3"):
